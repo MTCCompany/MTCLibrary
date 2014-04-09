@@ -7,5 +7,6 @@ namespace MTC.MTCLibrary
 {
     class Class1
     {
+
     }
 }
