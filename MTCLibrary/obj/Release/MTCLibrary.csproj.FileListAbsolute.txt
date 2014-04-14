@@ -1,0 +1,5 @@
+D:\Project_MTC\MTCLibrary\MTCLibrary\bin\Release\MTCLibrary.dll
+D:\Project_MTC\MTCLibrary\MTCLibrary\bin\Release\MTCLibrary.pdb
+D:\Project_MTC\MTCLibrary\MTCLibrary\obj\Release\ResolveAssemblyReference.cache
+D:\Project_MTC\MTCLibrary\MTCLibrary\obj\Release\MTCLibrary.dll
+D:\Project_MTC\MTCLibrary\MTCLibrary\obj\Release\MTCLibrary.pdb

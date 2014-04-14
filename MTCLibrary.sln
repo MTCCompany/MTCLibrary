@@ -3,6 +3,8 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual C# Express 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MTCLibrary", "MTCLibrary\MTCLibrary.csproj", "{0A9E7A9E-B2D0-4535-9D26-DC1C87B1A4BE}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MTCLibraryTest", "MTCLibraryTest\MTCLibraryTest.csproj", "{2BACD0A0-22A7-41CF-BE86-73F5ACFAA27E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -13,6 +15,10 @@ Global
 		{0A9E7A9E-B2D0-4535-9D26-DC1C87B1A4BE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0A9E7A9E-B2D0-4535-9D26-DC1C87B1A4BE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0A9E7A9E-B2D0-4535-9D26-DC1C87B1A4BE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2BACD0A0-22A7-41CF-BE86-73F5ACFAA27E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2BACD0A0-22A7-41CF-BE86-73F5ACFAA27E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2BACD0A0-22A7-41CF-BE86-73F5ACFAA27E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2BACD0A0-22A7-41CF-BE86-73F5ACFAA27E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

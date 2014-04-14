@@ -1,0 +1,9 @@
+D:\Project_MTC\MTCLibrary\MTCLibraryTest\bin\Release\MTCLibraryTest.dll
+D:\Project_MTC\MTCLibrary\MTCLibraryTest\bin\Release\MTCLibraryTest.pdb
+D:\Project_MTC\MTCLibrary\MTCLibraryTest\obj\Release\ResolveAssemblyReference.cache
+D:\Project_MTC\MTCLibrary\MTCLibraryTest\obj\Release\MTCLibraryTest.dll
+D:\Project_MTC\MTCLibrary\MTCLibraryTest\obj\Release\MTCLibraryTest.pdb
+D:\Project_MTC\MTCLibrary\MTCLibraryTest\bin\Release\MTCLibrary.dll
+D:\Project_MTC\MTCLibrary\MTCLibraryTest\bin\Release\nunit.framework.dll
+D:\Project_MTC\MTCLibrary\MTCLibraryTest\bin\Release\MTCLibrary.pdb
+D:\Project_MTC\MTCLibrary\MTCLibraryTest\bin\Release\nunit.framework.xml
