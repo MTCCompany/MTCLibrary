@@ -16,6 +16,8 @@ namespace MTC.MTCLibrary
         ///<summary>Workbooksオブジェクト</summary>
         private object xlsBooks = null;
 
+        public ExcelWrapper() { }
+
         ///<summary>Excelアプリケーションオブジェクト</summary>
         protected object XlsApplication
         {
