@@ -7,3 +7,4 @@ D:\Project_MTC\MTCLibrary\MTCLibraryTest\bin\Release\MTCLibrary.dll
 D:\Project_MTC\MTCLibrary\MTCLibraryTest\bin\Release\nunit.framework.dll
 D:\Project_MTC\MTCLibrary\MTCLibraryTest\bin\Release\MTCLibrary.pdb
 D:\Project_MTC\MTCLibrary\MTCLibraryTest\bin\Release\nunit.framework.xml
+D:\Project_MTC\MTCLibrary\MTCLibraryTest\bin\Release\MTCLibrary.xml

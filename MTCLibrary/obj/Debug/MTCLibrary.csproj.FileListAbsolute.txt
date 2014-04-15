@@ -3,3 +3,4 @@ D:\Project_MTC\MTCLibrary\MTCLibrary\bin\Debug\MTCLibrary.pdb
 D:\Project_MTC\MTCLibrary\MTCLibrary\obj\Debug\ResolveAssemblyReference.cache
 D:\Project_MTC\MTCLibrary\MTCLibrary\obj\Debug\MTCLibrary.dll
 D:\Project_MTC\MTCLibrary\MTCLibrary\obj\Debug\MTCLibrary.pdb
+D:\Project_MTC\MTCLibrary\MTCLibrary\bin\Debug\MTCLibrary.xml

@@ -1,0 +1,221 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>MTCLibrary</name>
+    </assembly>
+    <members>
+        <member name="T:MTC.MTCLibrary.ExcelWrapper">
+            <summary>
+            ExcelCOMオブジェクトを使用してExcelを操作するクラス
+            参照設定は必要がない為、バージョンに依存しない
+            </summary>
+        </member>
+        <member name="F:MTC.MTCLibrary.ExcelWrapper.xlsApplication">
+            <summary>Excelアプリケーションオブジェクト</summary>
+        </member>
+        <member name="F:MTC.MTCLibrary.ExcelWrapper.xlsBooks">
+            <summary>Workbooksオブジェクト</summary>
+        </member>
+        <member name="M:MTC.MTCLibrary.ExcelWrapper.ReleaseComObject(System.Object)">
+            <summary>
+            ExcelCOMオブジェクトのリリース
+            使用したExcelCOMオブジェクトを解放する際に使用する
+            </summary>
+            <param name="target">解放するオブジェクト</param>
+        </member>
+        <member name="M:MTC.MTCLibrary.ExcelWrapper.GetBook(System.Int32)">
+            <summary>
+            ExcelBookオブジェクトを取得する。
+            </summary>
+            <param name="index">インデックス番号</param>
+            <returns>ExcelBookオブジェクトを渡す。</returns>
+        </member>
+        <member name="M:MTC.MTCLibrary.ExcelWrapper.GetSheets(System.Object)">
+            <summary>
+            ExcelSheetsオブジェクトを取得する。
+            </summary>
+            <param name="book">ExcelBookオブジェクト</param>
+            <returns>ExcelSheetsオブジェクトを渡す。</returns>
+        </member>
+        <member name="M:MTC.MTCLibrary.ExcelWrapper.GetSheet(System.Object,System.String)">
+            <summary>
+            ExcelSheetオブジェクトを取得する。
+            </summary>
+            <param name="sheets">ExcelSheetsオブジェクト</param>
+            <param name="sheetName">シート名称</param>
+            <returns>ExcelSheetオブジェクトを渡す。</returns>
+        </member>
+        <member name="M:MTC.MTCLibrary.ExcelWrapper.GetSheet(System.Object,System.Int32)">
+            <summary>
+            ExcelSheetオブジェクトを取得する。
+            </summary>
+            <param name="sheets">ExcelSheetsオブジェクト</param>
+            <param name="index">インデックス番号</param>
+            <returns>ExcelSheetオブジェクトを渡す。</returns>
+        </member>
+        <member name="M:MTC.MTCLibrary.ExcelWrapper.GetRange(System.Object,System.String)">
+            <summary>
+            ExcelRangeオブジェクトを取得する。
+            </summary>
+            <param name="sheet">Excelオブジェクト</param>
+            <param name="range">レンジオブジェクト</param>
+            <returns>ExcelRangeオブジェクトを渡す。</returns>
+        </member>
+        <member name="M:MTC.MTCLibrary.ExcelWrapper.SetRangeValue(System.Object,System.Object)">
+            <summary>
+            指定されたレンジ範囲に値を設定する。
+            </summary>
+            <param name="range">Rangeオブジェクト</param>
+            <param name="value">設定する値</param>
+        </member>
+        <member name="M:MTC.MTCLibrary.ExcelWrapper.GetRangeValue(System.Object)">
+            <summary>
+            Excelのセルに設定されている値を2次元配列で取得する。
+            </summary>
+            <param name="range">レンジオブジェクト</param>
+            <returns>指定範囲のセルの値を2次元配列で渡す。</returns>
+        </member>
+        <member name="M:MTC.MTCLibrary.ExcelWrapper.GetCells(System.Object)">
+            <summary>
+            ExcelCellsオブジェクトを取得する。
+            </summary>
+            <param name="sheet">Sheetオブジェクト</param>
+            <returns>ExcelCellsオブジェクトで渡す。</returns>
+        </member>
+        <member name="M:MTC.MTCLibrary.ExcelWrapper.GetCell(System.Object,System.Int32,System.Int32)">
+            <summary>
+            ExcelCellオブジェクトを取得する。
+            </summary>
+            <param name="cells">Cellsオブジェクト</param>
+            <param name="row">行</param>
+            <param name="column">列</param>
+            <returns>ExcelCellオブジェクトで渡す。</returns>
+        </member>
+        <member name="M:MTC.MTCLibrary.ExcelWrapper.GetCellsLast(System.Object,System.String)">
+            <summary>シートの最終行又は最終列を取得する。</summary>
+            <param name="property">Column又はRowを指定</param>
+            <returns>最終行又は最終列を返す。</returns>
+        </member>
+        <member name="M:MTC.MTCLibrary.ExcelWrapper.Dispose">
+            <summary>ExcelCOMオブジェクトの破棄を実施する</summary>
+        </member>
+        <member name="M:MTC.MTCLibrary.ExcelWrapper.Open(System.String)">
+            <summary>
+            ExcelファイルのBookを開きます。
+            </summary>
+            <param name="xlsFilePath">Excelファイルパス</param>
+        </member>
+        <member name="M:MTC.MTCLibrary.ExcelWrapper.AddBook">
+            <summary>
+            Excelファイル新規作成してBookを開きます。
+            </summary>
+        </member>
+        <member name="M:MTC.MTCLibrary.ExcelWrapper.Close(System.Boolean,System.String)">
+            <summary>
+            ExcelファイルのBookを閉じます。
+            </summary>
+        </member>
+        <member name="M:MTC.MTCLibrary.ExcelWrapper.Save">
+            <summary>
+            ExcelファイルのBookを保存します。
+            </summary>
+        </member>
+        <member name="M:MTC.MTCLibrary.ExcelWrapper.SaveAs(System.String)">
+            <summary>
+            ExcelファイルのBookを保存します。
+            </summary>
+            <param name="xlsFilePath">Excelファイルパス</param>
+        </member>
+        <member name="M:MTC.MTCLibrary.ExcelWrapper.GetRangeValue(System.String,System.String)">
+            <summary>
+            指定したレンジ範囲のデータを一括で取得する。
+            </summary>
+            <param name="sheetName">シート名称</param>
+            <param name="rangeMap">レンジ範囲</param>
+            <returns>データを2次元配列で渡す</returns>
+        </member>
+        <member name="M:MTC.MTCLibrary.ExcelWrapper.GetRangeValue(System.Int32,System.String)">
+            <summary>
+            指定したレンジ範囲のデータを一括で取得する。
+            </summary>
+            <param name="sheetIndex">シートインデックス番号</param>
+            <param name="rangeMap">レンジ範囲</param>
+            <returns>データを2次元配列で渡す</returns>
+        </member>
+        <member name="M:MTC.MTCLibrary.ExcelWrapper.SetRangeValue(System.String,System.String,System.Object)">
+            <summary>
+            指定したレンジ範囲のデータを一括で設定する。
+            ※配列の開始位置は'1'からなので注意して下さい。
+            </summary>
+            <param name="sheetName">シート名称</param>
+            <param name="rangeMap">レンジ範囲</param>
+            <param name="value">設定する値</param>
+        </member>
+        <member name="M:MTC.MTCLibrary.ExcelWrapper.SetRangeValue(System.Int32,System.String,System.Object)">
+            <summary>
+            指定したレンジ範囲のデータを一括で設定する。
+            ※配列の開始位置は'1'からなので注意して下さい。
+            </summary>
+            <param name="sheetIndex">シート番号</param>
+            <param name="rangeMap">レンジ範囲</param>
+            <param name="value">設定する値</param>
+        </member>
+        <member name="M:MTC.MTCLibrary.ExcelWrapper.GetLastRowIndex(System.String)">
+            <summary>
+            指定したシートの最終行を取得する。
+            </summary>
+            <param name="sheetName">シート名</param>
+        </member>
+        <member name="M:MTC.MTCLibrary.ExcelWrapper.GetLastRowIndex(System.Int32)">
+            <summary>
+            指定したシートの最終行を取得する。
+            </summary>
+            <param name="sheetIndex">シートインデックス番号</param>
+        </member>
+        <member name="M:MTC.MTCLibrary.ExcelWrapper.GetLastColIndex(System.String)">
+            <summary>
+            指定したシートの最終列を取得する。
+            </summary>
+            <param name="sheetName">シート名</param>
+        </member>
+        <member name="M:MTC.MTCLibrary.ExcelWrapper.GetLastColIndex(System.Int32)">
+            <summary>
+            指定したシートの最終列を取得する。
+            </summary>
+            <param name="sheetIndex">シートインデックス番号</param>
+        </member>
+        <member name="P:MTC.MTCLibrary.ExcelWrapper.XlsApplication">
+            <summary>ExcelのCOMオブジェクトを参照できます。</summary>
+            <value>getのみ使用可能で、Object型を返す</value>
+        </member>
+        <member name="P:MTC.MTCLibrary.ExcelWrapper.Version">
+            <summary>
+            インストールされているExcelのバージョンを参照できます。
+            バージョンは2003(11.0),2007(12.0)，2010(14.0)
+            </summary>
+            <value>getのみ使用可能で、String型を返す</value>
+        </member>
+        <member name="P:MTC.MTCLibrary.ExcelWrapper.SheetsInNewWorkBook">
+            <summary>
+            Excelの新規作成時に作成するシートを設定出来ます。
+            </summary>
+            <value>setのみ使用可能で、int型を渡す</value>
+        </member>
+        <member name="P:MTC.MTCLibrary.ExcelWrapper.DisplayAlerts">
+            <summary>
+            Excel保存時の確認メッセージを有効及び無効に設定できます。
+            </summary>
+            <value>setのみ使用可能で、Bool型を渡す</value>
+        </member>
+        <member name="P:MTC.MTCLibrary.ExcelWrapper.Visible">
+            <summary>
+            Excelアプリケーションの表示及び非表示を設定出来ます。
+            </summary>
+            <value>setのみ使用可能で、Bool型を渡す</value>
+        </member>
+        <member name="P:MTC.MTCLibrary.ExcelWrapper.Workbooks">
+            <summary>WorkBooksオブジェクトを参照できます。</summary>
+            <value>getのみ使用可能で、Objetct型を返す</value>
+        </member>
+    </members>
+</doc>
