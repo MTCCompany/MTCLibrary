@@ -305,10 +305,11 @@ namespace MTC.MTCLibrary
         ///</summary>
         ///<example>
         /// 次のコードでは、Excelファイル("C:\\Test.xls")を開きます。
-        /// 
+        /// <code>
         /// using (ExcelWrapper xls = new ExcelWrapper()){
         ///     xls.Open("C:\Test.xls");
         /// }
+        /// </code>
         /// </example>
         ///<param name="xlsFilePath">Excelファイルパス</param>
         public void Open(string xlsFilePath)
@@ -339,11 +340,12 @@ namespace MTC.MTCLibrary
         ///</summary>
         ///<example>
         /// 次のコードでは、新規Excelファイルを作成して、保存せずに閉じます
-        /// 
+        /// <code>
         /// using (ExcelWrapper xls = new ExcelWrapper()){
         ///     xls.AddBook();
         ///     xls.Close();
         /// }
+        /// </code>
         ///</example>
         public void AddBook()
         {
@@ -357,11 +359,14 @@ namespace MTC.MTCLibrary
         ///ExcelファイルのBookを閉じます。
         ///</summary>
         /// 次のコードでは、新規Excelファイルを作成して、保存せずに閉じます
-        /// 
+        /// <example>
+        /// <code>
         /// using (ExcelWrapper xls = new ExcelWrapper()){
         ///     xls.AddBook();
         ///     xls.Close();
         /// }
+        /// </code>
+        /// </example>
         public void Close()
         {
             object[] parameters = new object[PARAM_NUM_2];
@@ -391,11 +396,12 @@ namespace MTC.MTCLibrary
         ///</summary>
         ///<example>
         /// 次のコードでは、既存のExcelファイルを開き、保存して終了します。
-        /// 
+        /// <code>
         /// using (ExcelWrapper xls = new ExcelWrapper()){
         ///     xls.Open("C:\Test.xls");
         ///     xls.Save();
         /// }
+        /// </code>
         ///</example>
         ///<param name="xlsFilePath">Excelファイルパス</param>
         public void SaveAs(string xlsFilePath)
@@ -426,13 +432,14 @@ namespace MTC.MTCLibrary
         ///<example>
         /// 次のコードでは、既存のExcelファイルを開き、
         /// シート名[Sheet1]のレンジ[A1:A2"]からセル値を取得します。
-        /// 
+        /// <code>
         /// using (ExcelWrapper xls = new ExcelWrapper()){
         ///     xls.Open("C:\Test.xls");
         ///     object[,] temp = GetRangeValue("Sheet1", "A1:B2");
         ///     //セル[A1]のデータを出力します。
         ///     System.Console.WriteLine(temp[1,1].toString());
         /// }
+        /// </code>
         ///</example>
         public object GetRangeValue(string sheetName, string rangeMap)
         {
@@ -462,13 +469,14 @@ namespace MTC.MTCLibrary
         ///<example>
         /// 次のコードでは、既存のExcelファイルを開き、
         /// シート番号[1]のレンジ[A1:A2"]からセル値を取得します。
-        /// 
+        /// <code>
         /// using (ExcelWrapper xls = new ExcelWrapper()){
         ///     xls.Open("C:\Test.xls");
         ///     object[,] temp = GetRangeValue(1, "A1:B2");
         ///     //セル[A1]のデータを出力します。
         ///     System.Console.WriteLine(temp[1,1].toString());
         /// }
+        /// </code>
         ///</example>
         public object GetRangeValue(int sheetIndex, string rangeMap)
         {
@@ -498,13 +506,14 @@ namespace MTC.MTCLibrary
         ///<example>
         /// 次のコードでは、既存のExcelファイルを開き、
         /// シート名[Sheet1]のレンジ[A1:A2"]にセル値を設定します。
-        /// 
+        /// <code>
         /// using (ExcelWrapper xls = new ExcelWrapper()){
         ///     xls.Open("C:\Test.xls");
         ///     string[,] setValue = { { "A1", "B1" }, { "A2", "B2" } };
         ///     SetRangeValue("Sheet1","A1:B2", setValue);
         ///     xls.Save();
         /// }
+        /// </code>
         ///</example>
         public void SetRangeValue(string sheetName, string rangeMap,object value)
         {
@@ -534,13 +543,14 @@ namespace MTC.MTCLibrary
         ///<example>
         /// 次のコードでは、既存のExcelファイルを開き、
         /// シート番号[1]のレンジ[A1:A2"]にセル値を設定します。
-        /// 
+        /// <code>
         /// using (ExcelWrapper xls = new ExcelWrapper()){
         ///     xls.Open("C:\Test.xls");
         ///     string[,] setValue = { { "A1", "B1" }, { "A2", "B2" } };
         ///     SetRangeValue(1,"A1:B2", setValue);
         ///     xls.Save();
         /// }
+        /// </code>
         ///</example>
         public void SetRangeValue(int sheetIndex, string rangeMap, object value)
         {
@@ -566,13 +576,15 @@ namespace MTC.MTCLibrary
         ///指定したシートの最終行を取得する。
         ///</summary>
         ///<param name="sheetName">シート名</param>
+        ///<returns>シートの最終行を渡す</returns>
         ///<example>
         /// 次のコードでは、既存のExcelファイルを開き、シート名[Sheet1]の最終行を取得します。
-        /// 
+        /// <code>
         /// using (ExcelWrapper xls = new ExcelWrapper()){
         ///     xls.Open("C:\Test.xls");
         ///     System.Console.WriteLine(xls.GetLastRowIndex("Sheet1").toString());
         /// }
+        /// </code>
         ///</example>
         public int GetLastRowIndex( string sheetName)
         {
@@ -596,13 +608,15 @@ namespace MTC.MTCLibrary
         ///指定したシートの最終行を取得する。
         ///</summary>
         ///<param name="sheetIndex">シート番号</param>
+        ///<returns>シートの最終行を渡す</returns>
         ///<example>
         /// 次のコードでは、既存のExcelファイルを開き、シート番号[1]の最終行を取得します。
-        /// 
+        /// <code>
         /// using (ExcelWrapper xls = new ExcelWrapper()){
         ///     xls.Open("C:\Test.xls");
         ///     System.Console.WriteLine(xls.GetLastRowIndex(1).toString());
         /// }
+        /// </code>
         ///</example>
         public int GetLastRowIndex(int sheetIndex)
         {
@@ -626,12 +640,14 @@ namespace MTC.MTCLibrary
         ///指定したシートの最終列を取得する。
         ///</summary>
         ///<param name="sheetName">シート名</param>
+        ///<returns>シートの最終列を渡す</returns>
         ///<example>
         /// 次のコードでは、既存のExcelファイルを開き、シート名[Sheet1]の最終列を取得します。
-        /// 
+        /// <code>
         /// using (ExcelWrapper xls = new ExcelWrapper()){
         ///     xls.Open("C:\Test.xls");
         ///     System.Console.WriteLine(xls.GetLastColIndex("Sheet1").toString());
+        /// </code>
         /// }
         ///</example>
         public int GetLastColIndex(string sheetName)
@@ -656,13 +672,15 @@ namespace MTC.MTCLibrary
         ///指定したシートの最終列を取得する。
         ///</summary>
         ///<param name="sheetIndex">シート番号</param>
+        ///<returns>シートの最終列を渡す</returns>
         ///<example>
         /// 次のコードでは、既存のExcelファイルを開き、シート番号[1]の最終列を取得します。
-        /// 
+        /// <code>
         /// using (ExcelWrapper xls = new ExcelWrapper()){
         ///     xls.Open("C:\Test.xls");
         ///     System.Console.WriteLine(xls.GetLastColIndex(1).toString());
         /// }
+        /// </code>
         ///</example>
         public int GetLastColIndex(int sheetIndex)
         {
