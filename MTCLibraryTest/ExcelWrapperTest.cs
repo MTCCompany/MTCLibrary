@@ -6,6 +6,7 @@ using MTC.MTCLibrary;
 using NUnit.Framework;
 using System.IO;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 
 namespace MTC.MTCLibraryTest
 {
@@ -85,6 +86,22 @@ namespace MTC.MTCLibraryTest
         }
 
         ///<summary>
+        ///Excelファイル閉じるテスト
+        ///【テスト】
+        ///</summary>
+        [Test]
+        public void Close()
+        {
+            using (ExcelWrapper xls = new ExcelWrapper())
+            {
+                xls.AddBook();
+                xls.Close();
+                Assert.Throws <COMException>(() => xls.Save());
+            }
+
+        }
+
+        ///<summary>
         /// Rangeテストのシート名称用
         ///【テスト】GetRangeValue,SetRangeValue
         ///</summary>
@@ -106,12 +123,12 @@ namespace MTC.MTCLibraryTest
                         Assert.True(tmpValue[i+1, j+1].ToString() == setValue[i,j]);
                     }
                 }
-                xls.Close(false, null);
+                xls.Close();
             }
         }
 
         ///<summary>
-        /// Rangeテストのシートインデックス番号用
+        /// Rangeテストのシートインデックス用
         ///【テスト】GetRangeValue,SetRangeValue
         ///</summary>
         [Test]
@@ -132,12 +149,12 @@ namespace MTC.MTCLibraryTest
                         Assert.True(tmpValue[i + 1, j + 1].ToString() == setValue[i, j]);
                     }
                 }
-                xls.Close(false, null);
+                xls.Close();
             }
         }
 
         ///<summary>
-        /// 最終行と最終列の取得テスト
+        /// 最終行と最終列の取得テスト(シート名称とシートインデックス）
         ///【テスト】GetLastRowIndex,GetLastColIndex
         ///</summary>
         [Test]
@@ -152,7 +169,7 @@ namespace MTC.MTCLibraryTest
                 Assert.True(xls.GetLastColIndex("Sheet1") == 2);
                 Assert.True(xls.GetLastRowIndex(1) == 3);
                 Assert.True(xls.GetLastColIndex(1) == 2);
-                xls.Close(false, null);
+                xls.Close();
             }
         }
     }
