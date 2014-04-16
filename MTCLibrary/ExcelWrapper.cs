@@ -53,6 +53,10 @@ namespace MTC.MTCLibrary
         private object xlsApplication = null;
         ///<summary>Workbooksオブジェクト</summary>
         private object xlsBooks = null;
+        ///<summary>Workbookオブジェクト</summary>
+        private object xlsBook = null;
+        ///<summary>Workbookオブジェクト</summary>
+        private object xlsSheets = null;
 
         ///<summary>ExcelのCOMオブジェクトを参照できます。</summary>
         ///<value>getのみ使用可能で、Object型を返す</value>
@@ -67,6 +71,20 @@ namespace MTC.MTCLibrary
                     xlsApplication = Activator.CreateInstance(classType);
                 }
                 return xlsApplication;
+            }
+        }
+
+        ///<summary>WorkBooksオブジェクトを参照できます。</summary>
+        ///<value>getのみ使用可能で、Objetct型を返す</value>
+        protected object XlsBooks
+        {
+            get
+            {
+                if (xlsBooks == null)
+                {
+                    xlsBooks = XlsApplication.GetType().InvokeMember("Workbooks", BindingFlags.GetProperty, null, XlsApplication, null);
+                }
+                return xlsBooks;
             }
         }
 
@@ -125,19 +143,7 @@ namespace MTC.MTCLibrary
             }
         }
 
-        ///<summary>WorkBooksオブジェクトを参照できます。</summary>
-        ///<value>getのみ使用可能で、Objetct型を返す</value>
-        protected object Workbooks
-        {
-            get
-            {
-                if (xlsBooks == null)
-                {
-                    xlsBooks = XlsApplication.GetType().InvokeMember("Workbooks", BindingFlags.GetProperty, null, XlsApplication, null);
-                }
-                return xlsBooks;
-            }
-        }
+        
         
         ///<summary>
         ///ExcelCOMオブジェクトのリリース
@@ -162,13 +168,13 @@ namespace MTC.MTCLibrary
         ///<summary>
         ///ExcelBookオブジェクトを取得する。
         ///</summary>
-        ///<param name="index">インデックス番号</param>
+        ///<param name="index">インデックス</param>
         ///<returns>ExcelBookオブジェクトを渡す。</returns>
         private object GetBook(int index)
         {
             object[] parameters = new object[PARAM_NUM_1];
             parameters[0] = index;
-            return Workbooks.GetType().InvokeMember("Item", BindingFlags.GetProperty, null, Workbooks, parameters);
+            return XlsBooks.GetType().InvokeMember("Item", BindingFlags.GetProperty, null, XlsBooks, parameters);
         }
 
         ///<summary>
@@ -198,7 +204,7 @@ namespace MTC.MTCLibrary
         ///ExcelSheetオブジェクトを取得する。
         ///</summary>
         ///<param name="sheets">ExcelSheetsオブジェクト</param>
-        ///<param name="index">インデックス番号</param>
+        ///<param name="index">インデックス</param>
         ///<returns>ExcelSheetオブジェクトを渡す。</returns>
         private object GetSheet(object sheets, int index)
         {
@@ -270,6 +276,7 @@ namespace MTC.MTCLibrary
         }
 
         ///<summary>シートの最終行又は最終列を取得する。</summary>
+        ///<param name="cells">Cellsオブジェクト</param>
         ///<param name="property">Column又はRowを指定</param>
         ///<returns>最終行又は最終列を返す。</returns>
         private int GetCellsLast(object cells, string property)
@@ -292,6 +299,10 @@ namespace MTC.MTCLibrary
         public void Dispose()
         {
             XlsApplication.GetType().InvokeMember("Quit", BindingFlags.InvokeMethod, null, XlsApplication, null);
+            ReleaseComObject(xlsSheets);
+            xlsSheets = null;
+            ReleaseComObject(xlsBook);
+            xlsBook = null;
             ReleaseComObject(xlsBooks);
             xlsBooks = null;
             ReleaseComObject(xlsApplication);
@@ -320,7 +331,9 @@ namespace MTC.MTCLibrary
             parameters[12] = Type.Missing;
             parameters[13] = Type.Missing;
             parameters[14] = Type.Missing;
-            Workbooks.GetType().InvokeMember("Open", BindingFlags.InvokeMethod, null, Workbooks, parameters);
+            XlsBooks.GetType().InvokeMember("Open", BindingFlags.InvokeMethod, null, XlsBooks, parameters);
+            xlsBook = GetBook(1);
+            xlsSheets = GetSheets(xlsBook);
         }
 
         ///<summary>
@@ -330,7 +343,10 @@ namespace MTC.MTCLibrary
         {
             object[] parameters = new object[PARAM_NUM_1];
             parameters[0] = Type.Missing;
-            Workbooks.GetType().InvokeMember("Add", BindingFlags.InvokeMethod, null, Workbooks, parameters);
+            XlsBooks.GetType().InvokeMember("Add", BindingFlags.InvokeMethod, null, XlsBooks, parameters);
+            xlsBook = GetBook(1);
+            xlsSheets = GetSheets(xlsBook);
+
         }
 
         ///<summary>
@@ -338,20 +354,10 @@ namespace MTC.MTCLibrary
         ///</summary>
         public void Close(bool saveChanges, string filename)
         {
-            object book = null;
             object[] parameters = new object[PARAM_NUM_2];
             parameters[0] = saveChanges;
             parameters[1] = filename;
-
-            try
-            {
-                book = GetBook(1);
-                book.GetType().InvokeMember("Close", BindingFlags.InvokeMethod, null, book, parameters);
-            }
-            finally
-            {
-                ReleaseComObject(book);
-            }
+            xlsBook.GetType().InvokeMember("Close", BindingFlags.InvokeMethod, null, xlsBook, parameters);
         }
 
         ///<summary>
@@ -359,17 +365,7 @@ namespace MTC.MTCLibrary
         ///</summary>
         public void Save()
         {
-            object book = null;
-
-            try
-            {
-                book = GetBook(1);
-                book.GetType().InvokeMember("Save", BindingFlags.InvokeMethod, null, book, null);
-            }
-            finally
-            {
-                ReleaseComObject(book);
-            }
+            xlsBook.GetType().InvokeMember("Save", BindingFlags.InvokeMethod, null, xlsBook, null);
         }
 
         ///<summary>
@@ -378,7 +374,6 @@ namespace MTC.MTCLibrary
         ///<param name="xlsFilePath">Excelファイルパス</param>
         public void SaveAs(string xlsFilePath)
         {
-            object book = null;
             object[] parameters = new object[PARAM_NUM_12];
             parameters[0] = xlsFilePath;
             parameters[1] = Type.Missing;
@@ -392,16 +387,7 @@ namespace MTC.MTCLibrary
             parameters[9] = Type.Missing;
             parameters[10] = Type.Missing;
             parameters[11] = Type.Missing;
-            
-            try
-            {
-                book = GetBook(1);
-                book.GetType().InvokeMember("SaveAs", BindingFlags.InvokeMethod, null, book, parameters);
-            }
-            finally
-            {
-                ReleaseComObject(book);
-            }
+            xlsBook.GetType().InvokeMember("SaveAs", BindingFlags.InvokeMethod, null, xlsBook, parameters);           
         }
 
         ///<summary>
@@ -412,36 +398,18 @@ namespace MTC.MTCLibrary
         ///<returns>データを2次元配列で渡す</returns>
         public object GetRangeValue(string sheetName, string rangeMap)
         {
-
-            object book = null;
-            object sheets = null;
             object sheet = null;
             object range = null;
 
             try
             {
-                // WorkbooksオブジェクトからBookオブジェクトを取得
-                book = GetBook(1);
-
-                // BookオブジェクトからSheetsオブジェクトを取得
-                sheets = GetSheets(book);
-
-                // SheetsオブジェクトからSheetオブジェクトを取得
-                sheet = GetSheet(sheets, sheetName);
-
-                // SheetオブジェクトからRangeオブジェクトを取得
+                sheet = GetSheet(xlsSheets, sheetName);
                 range = GetRange(sheet, rangeMap);
-
-                // CellオブジェクトからTextを取得
-                object text = GetRangeValue(range);
-
-                return text;
+                return GetRangeValue(range);;
             }finally
             {
                 ReleaseComObject(range);
                 ReleaseComObject(sheet);
-                ReleaseComObject(sheets);
-                ReleaseComObject(book);
             }
 
         }
@@ -449,42 +417,24 @@ namespace MTC.MTCLibrary
         ///<summary>
         ///指定したレンジ範囲のデータを一括で取得する。
         ///</summary>
-        ///<param name="sheetIndex">シートインデックス番号</param>
+        ///<param name="sheetIndex">シートインデックス</param>
         ///<param name="rangeMap">レンジ範囲</param>
         ///<returns>データを2次元配列で渡す</returns>
         public object GetRangeValue(int sheetIndex, string rangeMap)
         {
-
-            object book = null;
-            object sheets = null;
             object sheet = null;
             object range = null;
 
             try
             {
-                // WorkbooksオブジェクトからBookオブジェクトを取得
-                book = GetBook(1);
-
-                // BookオブジェクトからSheetsオブジェクトを取得
-                sheets = GetSheets(book);
-
-                // SheetsオブジェクトからSheetオブジェクトを取得
-                sheet = GetSheet(sheets, sheetIndex);
-
-                // SheetオブジェクトからRangeオブジェクトを取得
+                sheet = GetSheet(xlsSheets, sheetIndex);
                 range = GetRange(sheet, rangeMap);
-
-                // CellオブジェクトからTextを取得
-                object text = GetRangeValue(range);
-
-                return text;
+                return GetRangeValue(range);
             }
             finally
             {
                 ReleaseComObject(range);
                 ReleaseComObject(sheet);
-                ReleaseComObject(sheets);
-                ReleaseComObject(book);
             }
 
         }
@@ -498,35 +448,19 @@ namespace MTC.MTCLibrary
         ///<param name="value">設定する値</param>
         public void SetRangeValue(string sheetName, string rangeMap,object value)
         {
-
-            object book = null;
-            object sheets = null;
             object sheet = null;
             object range = null;
 
             try
             {
-                // WorkbooksオブジェクトからBookオブジェクトを取得
-                book = GetBook(1);
-
-                // BookオブジェクトからSheetsオブジェクトを取得
-                sheets = GetSheets(book);
-
-                // SheetsオブジェクトからSheetオブジェクトを取得
-                sheet = GetSheet(sheets, sheetName);
-
-                // SheetオブジェクトからRangeオブジェクトを取得
+                sheet = GetSheet(xlsSheets, sheetName);
                 range = GetRange(sheet, rangeMap);
-
-                // CellオブジェクトからTextを取得
                 SetRangeValue(range, value);
             }
             finally
             {
                 ReleaseComObject(range);
                 ReleaseComObject(sheet);
-                ReleaseComObject(sheets);
-                ReleaseComObject(book);
             }
 
         }
@@ -540,35 +474,19 @@ namespace MTC.MTCLibrary
         ///<param name="value">設定する値</param>
         public void SetRangeValue(int sheetIndex, string rangeMap, object value)
         {
-
-            object book = null;
-            object sheets = null;
             object sheet = null;
             object range = null;
 
             try
             {
-                // WorkbooksオブジェクトからBookオブジェクトを取得
-                book = GetBook(1);
-
-                // BookオブジェクトからSheetsオブジェクトを取得
-                sheets = GetSheets(book);
-
-                // SheetsオブジェクトからSheetオブジェクトを取得
-                sheet = GetSheet(sheets, sheetIndex);
-
-                // SheetオブジェクトからRangeオブジェクトを取得
+                sheet = GetSheet(xlsSheets, sheetIndex);
                 range = GetRange(sheet, rangeMap);
-
-                // CellオブジェクトからTextを取得
                 SetRangeValue(range, value);
             }
             finally
             {
                 ReleaseComObject(range);
                 ReleaseComObject(sheet);
-                ReleaseComObject(sheets);
-                ReleaseComObject(book);
             }
 
         }
@@ -580,76 +498,41 @@ namespace MTC.MTCLibrary
         ///<param name="sheetName">シート名</param>
         public int GetLastRowIndex( string sheetName)
         {
-            object book = null;
-            object sheets = null;
             object sheet = null;
             object cells = null;
-            object specialCells = null;
 
             try
             {
-                // WorkbooksオブジェクトからBookオブジェクトを取得
-                book = GetBook(1);
-
-                // BookオブジェクトからSheetsオブジェクトを取得
-                sheets = GetSheets(book);
-
-                // SheetsオブジェクトからSheetオブジェクトを取得
-                sheet = GetSheet(sheets, sheetName);
-
-                // SheetオブジェクトからCellsオブジェクトを取得
+                sheet = GetSheet(xlsSheets, sheetName);
                 cells = GetCells(sheet);
-
-                // Cellsオブジェクトから最終行Indexを取得
                 return GetCellsLast(cells, "Row");
 
             }finally
             {
-                ReleaseComObject(specialCells);
                 ReleaseComObject(cells);
                 ReleaseComObject(sheet);
-                ReleaseComObject(sheets);
-                ReleaseComObject(book);
             }
         }
 
         ///<summary>
         ///指定したシートの最終行を取得する。
         ///</summary>
-        ///<param name="sheetIndex">シートインデックス番号</param>
+        ///<param name="sheetIndex">シートインデックス</param>
         public int GetLastRowIndex(int sheetIndex)
         {
-            object book = null;
-            object sheets = null;
             object sheet = null;
             object cells = null;
-            object specialCells = null;
-
+         
             try
             {
-                // WorkbooksオブジェクトからBookオブジェクトを取得
-                book = GetBook(1);
-
-                // BookオブジェクトからSheetsオブジェクトを取得
-                sheets = GetSheets(book);
-
-                // SheetsオブジェクトからSheetオブジェクトを取得
-                sheet = GetSheet(sheets, sheetIndex);
-
-                // SheetオブジェクトからCellsオブジェクトを取得
+                sheet = GetSheet(xlsSheets, sheetIndex);
                 cells = GetCells(sheet);
-
-                // Cellsオブジェクトから最終行Indexを取得
                 return GetCellsLast(cells, "Row");
-
             }
             finally
             {
-                ReleaseComObject(specialCells);
                 ReleaseComObject(cells);
                 ReleaseComObject(sheet);
-                ReleaseComObject(sheets);
-                ReleaseComObject(book);
             }
         }
 
@@ -659,76 +542,44 @@ namespace MTC.MTCLibrary
         ///<param name="sheetName">シート名</param>
         public int GetLastColIndex(string sheetName)
         {
-            object book = null;
-            object sheets = null;
             object sheet = null;
             object cells = null;
-            object specialCells = null;
 
             try
             {
-                // WorkbooksオブジェクトからBookオブジェクトを取得
-                book = GetBook(1);
-
-                // BookオブジェクトからSheetsオブジェクトを取得
-                sheets = GetSheets(book);
-
-                // SheetsオブジェクトからSheetオブジェクトを取得
-                sheet = GetSheet(sheets, sheetName);
-
-                // SheetオブジェクトからCellsオブジェクトを取得
+                sheet = GetSheet(xlsSheets, sheetName);
                 cells = GetCells(sheet);
-
-                // Cellsオブジェクトから最終列Indexを取得
                 return GetCellsLast(cells, "Column");
-
-            }finally
+            }
+            finally
             {
-                ReleaseComObject(specialCells);
                 ReleaseComObject(cells);
                 ReleaseComObject(sheet);
-                ReleaseComObject(sheets);
-                ReleaseComObject(book);
             }
         }
 
         ///<summary>
         ///指定したシートの最終列を取得する。
         ///</summary>
-        ///<param name="sheetIndex">シートインデックス番号</param>
+        ///<param name="sheetIndex">シートインデックス</param>
         public int GetLastColIndex(int sheetIndex)
         {
-            object book = null;
-            object sheets = null;
             object sheet = null;
             object cells = null;
-            object specialCells = null;
 
             try
             {
-                // WorkbooksオブジェクトからBookオブジェクトを取得
-                book = GetBook(1);
-
-                // BookオブジェクトからSheetsオブジェクトを取得
-                sheets = GetSheets(book);
-
-                // SheetsオブジェクトからSheetオブジェクトを取得
-                sheet = GetSheet(sheets, sheetIndex);
-
-                // SheetオブジェクトからCellsオブジェクトを取得
+                sheet = GetSheet(xlsSheets, sheetIndex);
                 cells = GetCells(sheet);
-
-                // Cellsオブジェクトから最終列Indexを取得
                 return GetCellsLast(cells, "Column");
-
-            }finally
+            }
+            finally
             {
-                ReleaseComObject(specialCells);
                 ReleaseComObject(cells);
                 ReleaseComObject(sheet);
-                ReleaseComObject(sheets);
-                ReleaseComObject(book);
             }
         }
+
+
     }
 }
