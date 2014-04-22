@@ -58,6 +58,63 @@ namespace MTC.MTCLibrary
         ///<summary>Workbookオブジェクト</summary>
         private object xlsSheets = null;
 
+        ///<summary>罫線の位置を指定する定数</summary>
+        public enum XlBordersIndex : int
+        {
+            ///<summary>セルに右下がりの斜線 (対角線)</summary>
+            xlDiagonalDown = 5,
+            ///<summary>セルに右上がりの斜線 (対角線)</summary>
+            xlDiagonalUp      = 6,
+            ///<summary>セルの下の線</summary>
+            xlEdgeBottom      = 9,
+            ///<summary>セルの左の線</summary>
+            xlEdgeLeft        = 7,
+            ///<summary>セルの右の線</summary>
+            xlEdgeRight       =10,
+            ///<summary>セルの上の線</summary>
+            xlEdgeTop         = 8,
+            ///<summary>セセル範囲の内側の横線</summary>
+            xlInsideHorizontal=12,
+            ///<summary>セル範囲の内側の縦線</summary>
+            xlInsideVertical  =11
+        }
+        ///<summary>罫線の種類を指定する定数</summary>
+        public enum XlLineStyle : int
+        {
+            ///<summary>実線 (初期値です)</summary>
+            xlContinuous   = 1,
+            ///<summary>破線</summary>
+            xlDash	       =-4115,
+            ///<summary>一点鎖線</summary>
+            xlDashDot      = 4,
+            ///<summary>二点鎖線</summary>
+            xlDashDotDot   = 5,
+            ///<summary>点線</summary>
+            xlDot          =-4118,
+            ///<summary>二重線</summary>
+            xlDouble       =-4119,
+            ///<summary>斜め一点鎖線</summary>
+            xlSlantDashDot =13,
+            ///<summary>線なし</summary>
+            xlNone = -4142
+        }
+        ///<summary>罫線の太さを指定する定数</summary>
+        public enum XlBorderWeight : int
+        {
+            ///<summary>極細</summary>
+            xlHairline = 1,
+            ///<summary>細 (初期値です)</summary>
+            xlThin     = 2,
+            ///<summary>太</summary>
+            xlMedium   =-4138,
+            ///<summary>極太</summary>
+            xlThick    = 4
+        }
+
+        //罫線の位置を指定する定数
+        ///<summary>セルに右下がりの罫線</summary>
+        public const int XLCONTINUOS = 1;
+
         ///<summary>ExcelのCOMオブジェクトを参照できます。</summary>
         ///<value>getのみ使用可能で、Object型を返す</value>
         private object XlsApplication
@@ -219,6 +276,19 @@ namespace MTC.MTCLibrary
         }
 
         ///<summary>
+        ///ExcelBordersオブジェクトを取得する。
+        ///</summary>
+        ///<param name="type">ExcelRangeオブジェクト</param>
+        ///<param name="range">レンジオブジェクト</param>
+        ///<returns>ExcelRangeオブジェクトを渡す。</returns>
+        private object GetBorders(object range, XlBordersIndex type)
+        {
+            object[] parameters = new Object[PARAM_NUM_1];
+            parameters[0] = type;
+            return range.GetType().InvokeMember("Borders", BindingFlags.GetProperty, null, range, parameters);
+        }
+
+        ///<summary>
         ///指定されたレンジ範囲に値を設定する。
         ///</summary>
         ///<param name="range">Rangeオブジェクト</param>
@@ -255,8 +325,8 @@ namespace MTC.MTCLibrary
         ///ExcelCellオブジェクトを取得する。
         ///</summary>
         ///<param name="cells">Cellsオブジェクト</param>
-        ///<param name="row">行</param>
-        ///<param name="column">列</param>
+        ///<param name="row">行位置</param>
+        ///<param name="column">列位置</param>
         ///<returns>ExcelCellオブジェクトで渡す。</returns>
         private object GetCell(object cells, int row, int column)
         {
@@ -264,6 +334,28 @@ namespace MTC.MTCLibrary
             parameters[0] = row;
             parameters[1] = column;
             return cells.GetType().InvokeMember("Item", BindingFlags.GetProperty, null, cells, parameters);
+        }
+
+        ///<summary>
+        ///指定のセルから値を取得する。
+        ///</summary>
+        ///<param name="cell">Cellオブジェクト</param>
+        ///<returns>セル値をオブジェクトで渡す。</returns>
+        private object GetCellText(object cell)
+        {
+            return cell.GetType().InvokeMember("Text", BindingFlags.GetProperty, null, cell, null);
+        }
+
+        ///<summary>
+        ///指定のセルから値を設定する。
+        ///</summary>
+        ///<param name="cell">Cellオブジェクト</param>
+        ///<param name="value">設定する値の文字列</param>
+        private void SetCellText(object cell, string value)
+        {
+            object[] parameters = new Object[PARAM_NUM_1];
+            parameters[0] = value;
+            cell.GetType().InvokeMember("Value", BindingFlags.SetProperty, null, cell, parameters);
         }
 
         ///<summary>シートの最終行又は最終列を取得する。</summary>
@@ -697,6 +789,709 @@ namespace MTC.MTCLibrary
             }
         }
 
+        ///<summary>
+        ///指定したセルの値を文字列で取得する。
+        ///</summary>
+        ///<param name="sheetName">シート名</param>
+        ///<param name="row">行位置</param>
+        ///<param name="column">列位置</param>
+        ///<returns>セルの値を文字列で渡す</returns>
+        ///<example>
+        /// 次のコードでは、シート名[Sheet1]のセル[行1,列1](A1)からセル値を取得します。
+        /// <code>
+        /// using (ExcelWrapper xls = new ExcelWrapper()){
+        ///     xls.Open("C:\Test.xls");
+        ///     System.Console.WriteLine(xls.GetCellValue("Sheet1",1,1));
+        /// }
+        /// </code>
+        ///</example>
+        public string GetCellValue(string sheetName, int row, int column)
+        {
+            object sheet = null;
+            object cells = null;
+            object cell = null;
 
+            try
+            {
+                sheet = GetSheet(xlsSheets, sheetName);
+                cells = GetCells(sheet);
+                cell = GetCell(cells, row, column);
+                return GetCellText(cell).ToString();
+            }
+            finally
+            {
+                ReleaseComObject(cell);
+                ReleaseComObject(cells);
+                ReleaseComObject(sheet);
+            }
+        }
+
+        ///<summary>
+        ///指定したセルの値を文字列で取得する。
+        ///</summary>
+        ///<param name="sheetIndex">シート番号</param>
+        ///<param name="row">行位置</param>
+        ///<param name="column">列位置</param>
+        ///<returns>セルの値を文字列で渡す</returns>
+        ///<example>
+        /// 次のコードでは、シート番号[1]のセル[行1,列1](A1)からセル値を取得します。
+        /// <code>
+        /// using (ExcelWrapper xls = new ExcelWrapper()){
+        ///     xls.Open("C:\Test.xls");
+        ///     System.Console.WriteLine(xls.GetCellValue(1,1,1));
+        /// }
+        /// </code>
+        ///</example>
+        public string GetCellValue(int sheetIndex, int row, int column)
+        {
+            object sheet = null;
+            object cells = null;
+            object cell = null;
+
+            try
+            {
+                sheet = GetSheet(xlsSheets, sheetIndex);
+                cells = GetCells(sheet);
+                cell = GetCell(cells, row, column);
+                return GetCellText(cell).ToString();
+            }
+            finally
+            {
+                ReleaseComObject(cell);
+                ReleaseComObject(cells);
+                ReleaseComObject(sheet);
+            }
+        }
+
+        ///<summary>
+        ///指定したセルに文字列を設定する。
+        ///</summary>
+        ///<param name="sheetName">シート名</param>
+        ///<param name="row">行位置</param>
+        ///<param name="column">列位置</param>
+        ///<param name="value">文字列</param>        
+        ///<example>
+        /// 次のコードでは、シート名[Sheet1]のセル[行1,列1](A1)に文字列[A1]を設定する。
+        /// <code>
+        /// using (ExcelWrapper xls = new ExcelWrapper()){
+        ///     xls.Open("C:\Test.xls");
+        ///     xls.SetCellValue("Sheet1",1,1,"A1");
+        /// }
+        /// </code>
+        ///</example>
+        public void SetCellValue(string sheetName, int row, int column,string value)
+        {
+            object sheet = null;
+            object cells = null;
+            object cell = null;
+
+            try
+            {
+                sheet = GetSheet(xlsSheets, sheetName);
+                cells = GetCells(sheet);
+                cell = GetCell(cells, row, column);
+                SetCellText(cell, value);
+            }
+            finally
+            {
+                ReleaseComObject(cell);
+                ReleaseComObject(cells);
+                ReleaseComObject(sheet);
+            }
+        }
+
+        ///<summary>
+        ///指定したセルに文字列を設定する。
+        ///</summary>
+        ///<param name="sheetIndex">シート番号</param>
+        ///<param name="row">行位置</param>
+        ///<param name="column">列位置</param>
+        ///<param name="value">文字列</param>        
+        ///<example>
+        /// 次のコードでは、シート番号[1]のセル[行1,列1](A1)に文字列[A1]を設定する。
+        /// <code>
+        /// using (ExcelWrapper xls = new ExcelWrapper()){
+        ///     xls.Open("C:\Test.xls");
+        ///     xls.SetCellValue(1,1,1,"A1");
+        /// }
+        /// </code>
+        ///</example>
+        public void SetCellValue(int sheetIndex, int row, int column, string value)
+        {
+            object sheet = null;
+            object cells = null;
+            object cell = null;
+
+            try
+            {
+                sheet = GetSheet(xlsSheets, sheetIndex);
+                cells = GetCells(sheet);
+                cell = GetCell(cells, row, column);
+                SetCellText(cell, value);
+            }
+            finally
+            {
+                ReleaseComObject(cell);
+                ReleaseComObject(cells);
+                ReleaseComObject(sheet);
+            }
+        }
+
+        ///<summary>
+        ///Excelファイルにシートを一番後ろに追加する。
+        ///</summary>
+        ///<param name="count">追加するシート数</param>
+        ///<example>
+        /// 次のコードでは、新規Excelファイルに２シート追加します。
+        /// <code>
+        /// using (ExcelWrapper xls = new ExcelWrapper()){
+        ///     xls.AddBook();
+        ///     xls.AddSheet(2);
+        ///     xls.Close();
+        /// }
+        /// </code>
+        ///</example>
+        public void AddSheet(int count)
+        {
+            object rnt = null;
+            object sheet = null;
+            
+            try
+            {
+                sheet = GetSheet(xlsSheets, GetSheetCount());
+                object[] parameters = new object[PARAM_NUM_4];
+                parameters[0] = Type.Missing;
+                parameters[1] = sheet;
+                parameters[2] = count;
+                parameters[3] = Type.Missing;
+                rnt = xlsSheets.GetType().InvokeMember("Add", BindingFlags.InvokeMethod, null, xlsSheets, parameters);
+            }
+            finally
+            {
+                ReleaseComObject(sheet);
+                ReleaseComObject(rnt);
+            }
+        }
+
+        ///<summary>
+        ///指定したシートを削除する
+        ///</summary>
+        ///<param name="sheetName">シート名</param>
+        ///<example>
+        /// 次のコードでは、シート名「Sheet1］のシートを削除する。
+        /// <code>
+        /// using (ExcelWrapper xls = new ExcelWrapper()){
+        ///     xls.Open("C:\Test.xls");
+        ///     xls.DisplayAlerts = true;
+        ///     xls.DeleteSheet("Sheet1");
+        ///     xls.Save();
+        /// }
+        /// </code>
+        ///</example>
+        public void DeleteSheet(string sheetName)
+        {
+            object sheet = null;
+
+            try
+            {
+                sheet = GetSheet(xlsSheets, sheetName);
+                sheet.GetType().InvokeMember("Delete", BindingFlags.InvokeMethod, null, sheet, null);
+            }
+            finally
+            {
+                ReleaseComObject(sheet);
+            }
+        }
+
+        ///<summary>
+        ///指定したシートを削除する
+        ///</summary>
+        ///<param name="sheetIndex">シート番号</param>
+        ///<example>
+        /// 次のコードでは、シート番号「1」のシートを削除する。
+        /// <code>
+        /// using (ExcelWrapper xls = new ExcelWrapper()){
+        ///     xls.Open("C:\Test.xls");
+        ///     xls.DisplayAlerts = true;
+        ///     xls.DeleteSheet(1);
+        ///     xls.Save();
+        /// }
+        /// </code>
+        ///</example>
+        public void DeleteSheet(int sheetIndex)
+        {
+            object sheet = null;
+
+            try
+            {
+                sheet = GetSheet(xlsSheets, sheetIndex);
+                sheet.GetType().InvokeMember("Delete", BindingFlags.InvokeMethod, null, sheet, null);
+            }
+            finally
+            {
+                ReleaseComObject(sheet);
+            }
+        }
+
+        ///<summary>
+        ///指定したシートの名前を変更する。
+        ///</summary>
+        ///<param name="sheetName">変更対象のシート名</param>
+        ///<param name="reName">変更後のシート名</param>
+        ///<example>
+        /// 次のコードでは、シート名を「Sheet1］から「テスト」に変更する。
+        /// <code>
+        /// using (ExcelWrapper xls = new ExcelWrapper()){
+        ///     xls.Open("C:\Test.xls");
+        ///     xls.SetSheetName("Sheet1","テスト");
+        /// }
+        /// </code>
+        ///</example>
+        public void SetSheetName(string sheetName,string reName)
+        {
+            object sheet = null;
+
+            try
+            {
+                sheet = GetSheet(xlsSheets, sheetName);
+                object[] parameters = new object[PARAM_NUM_1];
+                parameters[0] = reName;
+                sheet.GetType().InvokeMember("Name", BindingFlags.SetProperty, null, sheet, parameters);
+            }
+            finally
+            {
+                ReleaseComObject(sheet);
+            }
+        }
+
+        ///<summary>
+        ///指定したシートの名前を変更する。
+        ///</summary>
+        ///<param name="sheetIndex">シート番号</param>
+        ///<param name="reName">変更後のシート名</param>
+        ///<example>
+        /// 次のコードでは、シート番号「1」のシート名を「テスト」に変更する。
+        /// <code>
+        /// using (ExcelWrapper xls = new ExcelWrapper()){
+        ///     xls.Open("C:\Test.xls");
+        ///     xls.SetSheetName("Sheet1","テスト");
+        /// }
+        /// </code>
+        ///</example>
+        public void SetSheetName(int sheetIndex, string reName)
+        {
+            object sheet = null;
+
+            try
+            {
+                sheet = GetSheet(xlsSheets, sheetIndex);
+                object[] parameters = new object[PARAM_NUM_1];
+                parameters[0] = reName;
+                sheet.GetType().InvokeMember("Name", BindingFlags.SetProperty, null, sheet, parameters);
+            }
+            finally
+            {
+                ReleaseComObject(sheet);
+            }
+        }
+
+        ///<summary>
+        ///シート数を取得する。
+        ///</summary>
+        ///<example>
+        /// 次のコードでは、シート数を取得する。
+        /// <code>
+        /// using (ExcelWrapper xls = new ExcelWrapper()){
+        ///     xls.Open("C:\Test.xls");
+        ///     xls.SetSheetName("Sheet1","テスト");
+        /// }
+        /// </code>
+        ///</example>
+        public int GetSheetCount()
+        {
+            return (int)xlsSheets.GetType().InvokeMember("Count", BindingFlags.GetProperty, null, xlsSheets, null);
+        }
+
+
+        ///<summary>
+        ///指定したシートを一番後ろにコピーし、新しい名称に設定する。
+        ///</summary>
+        ///<param name="sheetName">シート名</param>
+        ///<param name="newName">新シート名</param>
+        ///<example>
+        /// 次のコードでは、シート名を「Sheet1］から「テスト」に変更する。
+        /// <code>
+        /// using (ExcelWrapper xls = new ExcelWrapper()){
+        ///     xls.Open("C:\Test.xls");
+        ///     xls.SetSheetName("Sheet1","テスト");
+        /// }
+        /// </code>
+        ///</example>
+        public void CopySheet(string sheetName, string newName)
+        {
+            object sheet = null;
+            object sheetBack = null;
+            try
+            {
+                sheet = GetSheet(xlsSheets, sheetName);
+                sheetBack = GetSheet(xlsSheets, GetSheetCount());
+                object[] parameters = new object[PARAM_NUM_2];
+                parameters[0] = Type.Missing;
+                parameters[1] = sheetBack;
+                sheet.GetType().InvokeMember("Copy", BindingFlags.InvokeMethod, null, sheet, parameters);
+                SetSheetName(GetSheetCount(), newName);
+            }
+            finally
+            {
+                ReleaseComObject(sheet);
+                ReleaseComObject(sheetBack);
+            }
+        }
+
+        ///<summary>
+        ///指定したシートを一番後ろにコピーし、新しい名称に設定する。
+        ///</summary>
+        ///<param name="sheetIndex">シート番号</param>
+        ///<param name="newName">新シート名</param>
+        ///<example>
+        /// 次のコードでは、シート番号「1」のシート名を「テスト」に変更する。
+        /// <code>
+        /// using (ExcelWrapper xls = new ExcelWrapper()){
+        ///     xls.Open("C:\Test.xls");
+        ///     xls.SetSheetName(1,"テスト");
+        /// }
+        /// </code>
+        ///</example>
+        public void CopySheet(int sheetIndex, string newName)
+        {
+            object sheet = null;
+            try
+            {
+                sheet = GetSheet(xlsSheets, sheetIndex);
+                object[] parameters = new object[PARAM_NUM_2];
+                parameters[0] = Type.Missing;
+                parameters[1] = GetSheet(xlsSheets, GetSheetCount()); ;
+                sheet.GetType().InvokeMember("Copy", BindingFlags.InvokeMethod, null, sheet, parameters);
+                SetSheetName(GetSheetCount(), newName);
+            }
+            finally
+            {
+                ReleaseComObject(sheet);
+            }
+        }
+
+        ///<summary>
+        ///指定したレンジ範囲に罫線を設定する。
+        ///</summary>
+        ///<param name="sheetName">シート名称</param>
+        ///<param name="rangeMap">レンジ範囲</param>
+        ///<param name="xlBordersIndex">罫線の位置</param>
+        ///<param name="xlLineStyle">罫線の種類※省略時は実線</param>
+        ///<param name="xlBorderWeight">罫線の太さ※省略時は細</param>
+        ///<param name="color">罫線の色※省略時は黒</param>
+        ///<example>
+        /// 次のコードでは、シート名「Sheet1」のレンジ「B2:C4」の上に罫線を設定する。
+        /// <code>
+        /// using (ExcelWrapper xls = new ExcelWrapper()){
+        ///     xls.Open("C:\Test.xls");
+        ///     xls.SetRangeLine("Sheet1", "B2:C4", ExcelWrapper.XlBordersIndex.xlEdgeTop);
+        /// }
+        /// </code>
+        ///</example>
+        public void SetRangeLine(string sheetName, string rangeMap, 
+                                XlBordersIndex xlBordersIndex,
+                                XlLineStyle xlLineStyle = XlLineStyle.xlContinuous,
+                                XlBorderWeight xlBorderWeight = XlBorderWeight.xlThin,
+                                int color = 1)
+        {
+            object sheet = null;
+            object range = null;
+            object boders = null;
+            
+            try
+            {
+                sheet = GetSheet(xlsSheets, sheetName);
+                range = GetRange(sheet, rangeMap);
+                boders = GetBorders(range, xlBordersIndex);
+
+                object[] parameters = new object[PARAM_NUM_1];
+ 
+                parameters[0] = xlLineStyle;
+                boders.GetType().InvokeMember("LineStyle", BindingFlags.SetProperty, null, boders, parameters);
+
+                parameters[0] = xlBorderWeight;
+                boders.GetType().InvokeMember("Weight", BindingFlags.SetProperty, null, boders, parameters);
+
+                parameters[0] = color;
+                boders.GetType().InvokeMember("ColorIndex", BindingFlags.SetProperty, null, boders, parameters);
+
+            }
+            finally
+            {
+                ReleaseComObject(boders);
+                ReleaseComObject(range);
+                ReleaseComObject(sheet);
+            }
+        }
+
+        ///<summary>
+        ///指定したレンジ範囲に罫線を設定する。
+        ///</summary>
+        ///<param name="sheetIndex">シート番号</param>
+        ///<param name="rangeMap">レンジ範囲</param>
+        ///<param name="xlBordersIndex">罫線の位置</param>
+        ///<param name="xlLineStyle">罫線の種類※省略時は実線</param>
+        ///<param name="xlBorderWeight">罫線の太さ※省略時は細</param>
+        ///<param name="color">罫線の色※省略時は黒</param>
+        ///<example>
+        /// 次のコードでは、シート番号「1」のレンジ「B2:C4」の上に罫線を設定する。
+        /// <code>
+        /// using (ExcelWrapper xls = new ExcelWrapper()){
+        ///     xls.Open("C:\Test.xls");
+        ///     xls.SetRangeLine(1, "B2:C4", ExcelWrapper.XlBordersIndex.xlEdgeTop);
+        /// }
+        /// </code>
+        ///</example>
+        public void SetRangeLine(int sheetIndex, string rangeMap,
+                                XlBordersIndex xlBordersIndex,
+                                XlLineStyle xlLineStyle = XlLineStyle.xlContinuous,
+                                XlBorderWeight xlBorderWeight = XlBorderWeight.xlThin,
+                                int color = 1)
+        {
+            object sheet = null;
+            object range = null;
+            object boders = null;
+
+            try
+            {
+                sheet = GetSheet(xlsSheets, sheetIndex);
+                range = GetRange(sheet, rangeMap);
+                boders = GetBorders(range, xlBordersIndex);
+
+                object[] parameters = new object[PARAM_NUM_1];
+
+                parameters[0] = xlLineStyle;
+                boders.GetType().InvokeMember("LineStyle", BindingFlags.SetProperty, null, boders, parameters);
+
+                parameters[0] = xlBorderWeight;
+                boders.GetType().InvokeMember("Weight", BindingFlags.SetProperty, null, boders, parameters);
+
+                parameters[0] = color;
+                boders.GetType().InvokeMember("ColorIndex", BindingFlags.SetProperty, null, boders, parameters);
+
+            }
+            finally
+            {
+                ReleaseComObject(boders);
+                ReleaseComObject(range);
+                ReleaseComObject(sheet);
+            }
+        }
+
+        ///<summary>
+        ///指定したレンジ範囲のフォントの色を変更する。
+        ///</summary>
+        ///<param name="sheetName">シート名</param>
+        ///<param name="rangeMap">レンジ範囲</param>
+        ///<param name="color">フォントの色</param>
+        ///<example>
+        /// 次のコードでは、シート名「Sheet1］のレンジ「A1」のフォント色を赤色に変更する。
+        /// <code>
+        /// using (ExcelWrapper xls = new ExcelWrapper()){
+        ///     xls.Open("C:\Test.xls");
+        ///     xls.SetRangeFontColor("Sheet1", "A1", 3);
+        /// }
+        /// </code>
+        ///</example>
+        public void SetRangeFontColor(string sheetName, string rangeMap, int color)
+        {
+            object sheet = null;
+            object range = null;
+            object font = null;
+            try
+            {
+                sheet = GetSheet(xlsSheets, sheetName);
+                range = GetRange(sheet, rangeMap);
+                font =  range.GetType().InvokeMember("Font", BindingFlags.GetProperty, null, range, null);
+
+                object[] parameters = new object[PARAM_NUM_1];
+                parameters[0] = color;
+                font.GetType().InvokeMember("ColorIndex", BindingFlags.SetProperty, null, font, parameters);
+            }
+            finally
+            {
+                ReleaseComObject(font);
+                ReleaseComObject(range);
+                ReleaseComObject(sheet);
+            }
+        }
+
+        ///<summary>
+        ///指定したレンジ範囲のフォントの色を変更する。
+        ///</summary>
+        ///<param name="sheetIndex">シート番号</param>
+        ///<param name="rangeMap">レンジ範囲</param>
+        ///<param name="color">フォントの色</param>
+        ///<example>
+        /// 次のコードでは、シート番号「1］のレンジ「A1」のフォント色を赤色に変更する。
+        /// <code>
+        /// using (ExcelWrapper xls = new ExcelWrapper()){
+        ///     xls.Open("C:\Test.xls");
+        ///     xls.SetRangeFontColor(1, "A1", 3);
+        /// }
+        /// </code>
+        ///</example>
+        public void SetRangeFontColor(int sheetIndex, string rangeMap, int color)
+        {
+            object sheet = null;
+            object range = null;
+            object font = null;
+            try
+            {
+                sheet = GetSheet(xlsSheets, sheetIndex);
+                range = GetRange(sheet, rangeMap);
+                font = range.GetType().InvokeMember("Font", BindingFlags.GetProperty, null, range, null);
+
+                object[] parameters = new object[PARAM_NUM_1];
+                parameters[0] = color;
+                font.GetType().InvokeMember("ColorIndex", BindingFlags.SetProperty, null, font, parameters);
+            }
+            finally
+            {
+                ReleaseComObject(font);
+                ReleaseComObject(range);
+                ReleaseComObject(sheet);
+            }
+        }
+
+        ///<summary>
+        ///指定したレンジ範囲の背景色を変更する。
+        ///</summary>
+        ///<param name="sheetName">シート名</param>
+        ///<param name="rangeMap">レンジ範囲</param>
+        ///<param name="color">フォントの色</param>
+        ///<example>
+        /// 次のコードでは、シート名「Sheet1］のレンジ「A1」の背景色を赤色に変更する。
+        /// <code>
+        /// using (ExcelWrapper xls = new ExcelWrapper()){
+        ///     xls.Open("C:\Test.xls");
+        ///    xls.SetRangePatternColor("Sheet1", "A1", 3);
+        /// }
+        /// </code>
+        ///</example>
+        public void SetRangePatternColor(string sheetName, string rangeMap, int color)
+        {
+            object sheet = null;
+            object range = null;
+            object interior = null;
+            try
+            {
+                sheet = GetSheet(xlsSheets, sheetName);
+                range = GetRange(sheet, rangeMap);
+                interior = range.GetType().InvokeMember("Interior", BindingFlags.GetProperty, null, range, null);
+
+                object[] parameters = new object[PARAM_NUM_1];
+                parameters[0] = color;
+                interior.GetType().InvokeMember("ColorIndex", BindingFlags.SetProperty, null, interior, parameters);
+            }
+            finally
+            {
+                ReleaseComObject(interior);
+                ReleaseComObject(range);
+                ReleaseComObject(sheet);
+            }
+        }
+
+        ///<summary>
+        ///指定したレンジ範囲の背景色を変更する。
+        ///</summary>
+        ///<param name="sheetIndex">シート番号</param>
+        ///<param name="rangeMap">レンジ範囲</param>
+        ///<param name="color">フォントの色</param>
+        ///<example>
+        /// 次のコードでは、シート番号「1」のレンジ「A1」の背景色を赤色に変更する。
+        /// <code>
+        /// using (ExcelWrapper xls = new ExcelWrapper()){
+        ///     xls.Open("C:\Test.xls");
+        ///    xls.SetRangePatternColor(1, "A1", 3);
+        /// }
+        /// </code>
+        ///</example>
+        public void SetRangePatternColor(int sheetIndex, string rangeMap, int color)
+        {
+            object sheet = null;
+            object range = null;
+            object interior = null;
+            try
+            {
+                sheet = GetSheet(xlsSheets, sheetIndex);
+                range = GetRange(sheet, rangeMap);
+                interior = range.GetType().InvokeMember("Interior", BindingFlags.GetProperty, null, range, null);
+
+                object[] parameters = new object[PARAM_NUM_1];
+                parameters[0] = color;
+                interior.GetType().InvokeMember("ColorIndex", BindingFlags.SetProperty, null, interior, parameters);
+            }
+            finally
+            {
+                ReleaseComObject(interior);
+                ReleaseComObject(range);
+                ReleaseComObject(sheet);
+            }
+        }
+
+        ///<summary>
+        ///指定したシートをアクティブに設定する。
+        ///</summary>
+        ///<param name="sheetName">シート名</param>
+        ///<example>
+        /// 次のコードでは、シート名「Sheet1」をアクティブに設定する。
+        /// <code>
+        /// using (ExcelWrapper xls = new ExcelWrapper()){
+        ///    xls.Open("C:\Test.xls");
+        ///    xls.SetActivateSheet("Sheet1");
+        /// }
+        /// </code>
+        ///</example>
+        public void SetActivateSheet(string sheetName)
+        {
+            object sheet = null;
+            try
+            {
+                sheet = GetSheet(xlsSheets, sheetName);
+                sheet.GetType().InvokeMember("Activate", BindingFlags.InvokeMethod, null, sheet, null);
+            }
+            finally
+            {
+                ReleaseComObject(sheet);
+            }
+        }
+
+        ///<summary>
+        ///指定したシートをアクティブに設定する。
+        ///</summary>
+        ///<param name="sheetIndex">シート番号</param>
+        ///<example>
+        /// 次のコードでは、シート番号「1」をアクティブに設定する。
+        /// <code>
+        /// using (ExcelWrapper xls = new ExcelWrapper()){
+        ///    xls.Open("C:\Test.xls");
+        ///    xls.SetActivateSheet(1);
+        /// }
+        /// </code>
+        ///</example>
+        public void SetActivateSheet(int sheetIndex)
+        {
+            object sheet = null;
+            try
+            {
+                sheet = GetSheet(xlsSheets, sheetIndex);
+                sheet.GetType().InvokeMember("Activate", BindingFlags.InvokeMethod, null, sheet, null);
+            }
+            finally
+            {
+                ReleaseComObject(sheet);
+            }
+        }
     }
 }
